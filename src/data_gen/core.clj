@@ -4,16 +4,21 @@
 
 (def cli-options
   [
-   [nil "--definitions DEFINITIONS" "file with definitions for generator"]
-   ["-d" "--definition DEFINITION" "name of the definition to generate"]
+   ["-f" "--definitions-file DEFINITIONS" "file with definitions for generator"]
+   ["-d" "--definition-name DEFINITION" "name of the definition to generate"
+    :parse-fn #(keyword %)]
    ["-n" "--number-of-files NUMBER-OF-FILES" "number of output files"
     :parse-fn #(Integer/parseInt %)]
    ["-s" "--file-size FILE-SIZE" "number of output files in MBs"
     :parse-fn #(Integer/parseInt %)]
-   ["-h" "--help"]
-   ])
+   ["-h" "--help"]])
+
+(defn load-from-file [path-to-definitions-file]
+  {:second "fuck you"})
+
 
 (defn -main
   [& args]
-  (let [parsed-args (parse-opts args cli-options)]
-    ))
+  (let [{:keys [definition-name definitions-file]} (:options (parse-opts args cli-options))
+        selected-definition (definition-name (load-from-file definitions-file))]
+    (println selected-definition)))
