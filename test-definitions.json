@@ -1,0 +1,8 @@
+{
+  "test-definition": {
+    "number": ["number", 100],
+    "string": ["string", 3],
+    "string-with-placeholder": ["placeholder", "hello-*-test", 100],
+    "random-from-collection": ["take-random", ["first", "second", "third", "fourth"]]
+  }
+}
