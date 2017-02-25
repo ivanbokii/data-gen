@@ -39,4 +39,6 @@
   (let [{:keys [definition-name definitions-file number-of-files file-size]} (:options (parse-opts args cli-options))
         selected-definition (definition-name (load-definitions-from-file definitions-file))
         record-generator (partial generate-record-based-on-definition selected-definition)]
-    (engine/start number-of-files file-size record-generator)))
+    (engine/start record-generator number-of-files file-size)
+    ;; (println "starting engine: num. files" number-of-files "file size" file-size)
+    ))
