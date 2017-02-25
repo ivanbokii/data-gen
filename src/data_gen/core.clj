@@ -1,7 +1,8 @@
 (ns data-gen.core
   (:require [clojure.tools.cli :refer [parse-opts]]
             [cheshire.core :as json]
-            [data-gen.generators :as generators])
+            [data-gen.generators :as generators]
+            [data-gen.engine :as engine])
   (:gen-class))
 
 (def cli-options
@@ -21,11 +22,9 @@
    :placeholder generators/string-with-num-placeholder
    :take-random generators/random-from-seq})
 
-
 (defn load-definitions-from-file [path-to-definitions-file]
   (-> path-to-definitions-file slurp (json/parse-string true)))
 
-;; todo ivanbokii continue from here
 (defn generate-record-based-on-definition [definition]
   (reduce
    (fn [result key-name]
@@ -37,6 +36,7 @@
 
 (defn -main
   [& args]
-  (let [{:keys [definition-name definitions-file]} (:options (parse-opts args cli-options))
-        selected-definition (definition-name (load-definitions-from-file definitions-file))]
-    (generate-record-based-on-definition selected-definition)))
+  (let [{:keys [definition-name definitions-file number-of-files file-size]} (:options (parse-opts args cli-options))
+        selected-definition (definition-name (load-definitions-from-file definitions-file))
+        record-generator (partial generate-record-based-on-definition selected-definition)]
+    (engine/start number-of-files file-size record-generator)))
