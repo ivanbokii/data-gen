@@ -5,6 +5,8 @@
             [data-gen.engine :as engine])
   (:gen-class))
 
+;; todo provide defaults for everything you can
+
 (def cli-options
   [
    ["-f" "--definitions-file DEFINITIONS" "file with definitions for generator"]
@@ -14,31 +16,16 @@
     :parse-fn #(Integer/parseInt %)]
    ["-s" "--file-size FILE-SIZE" "number of output files in MBs"
     :parse-fn #(Integer/parseInt %)]
+   ["-o" "--output-format FORMAT" "output format of a single record. json or csv"
+    :parse-fn keyword]
    ["-h" "--help"]])
-
-(def generators-mapping
-  {:number generators/number
-   :string generators/string
-   :placeholder generators/string-with-num-placeholder
-   :take-random generators/random-from-seq})
 
 (defn load-definitions-from-file [path-to-definitions-file]
   (-> path-to-definitions-file slurp (json/parse-string true)))
 
-(defn generate-record-based-on-definition [definition]
-  (reduce
-   (fn [result key-name]
-     (let [generator-definition-data (key-name definition)
-           generator-name (-> generator-definition-data first keyword)
-           generator-params (rest generator-definition-data)]
-       (assoc result key-name (apply (generators-mapping generator-name) generator-params))))
-   {} (keys definition)))
-
 (defn -main
   [& args]
-  (let [{:keys [definition-name definitions-file number-of-files file-size]} (:options (parse-opts args cli-options))
+  (let [{:keys [definition-name definitions-file number-of-files file-size output-format]} (:options (parse-opts args cli-options))
         selected-definition (definition-name (load-definitions-from-file definitions-file))
-        record-generator (partial generate-record-based-on-definition selected-definition)]
-    (engine/start record-generator number-of-files file-size)
-    ;; (println "starting engine: num. files" number-of-files "file size" file-size)
-    ))
+        record-generator (partial generators/generate-record-based-on-definition selected-definition output-format)]
+    (engine/start record-generator number-of-files file-size)))
