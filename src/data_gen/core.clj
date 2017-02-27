@@ -24,9 +24,18 @@
 (defn load-definitions-from-file [path-to-definitions-file]
   (-> path-to-definitions-file slurp (json/parse-string true)))
 
+(defn make-generator-and-run-engine [params]
+  (let [selected-definition (definition-name (load-definitions-from-file (:definitions-file params)))
+        record-generator (partial generators/generate-record-based-on-definition (:selected-definition params) (:output-format params))]
+    ((:engine params) record-generator (:number-of-files params) (:file-size params) (:output-folder params))))
+
 (defn -main
   [& args]
-  (let [{:keys [definition-name definitions-file number-of-files file-size output-format output-folder]} (:options (parse-opts args cli-options))
-        selected-definition (definition-name (load-definitions-from-file definitions-file))
-        record-generator (partial generators/generate-record-based-on-definition selected-definition output-format)]
-    (engine/start record-generator number-of-files file-size output-folder)))
+  (let [{:keys [definition-name definitions-file number-of-files file-size output-format output-folder]} (:options (parse-opts args cli-options))]
+    (make-generator-and-run-engine {:definitions-file definitions-file
+                                    :selected-definition selected-definition
+                                    :output-folder output-folder
+                                    :output-format output-format
+                                    :number-of-files number-of-files
+                                    :file-size file-size
+                                    :engine data-gen.engine/start})))
