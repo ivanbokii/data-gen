@@ -18,6 +18,7 @@
     :parse-fn #(Integer/parseInt %)]
    ["-o" "--output-format FORMAT" "output format of a single record. json or csv"
     :parse-fn keyword]
+   ["-u" "--output-folder FOLDER-PATH" "folder to which app saves output files"]
    ["-h" "--help"]])
 
 (defn load-definitions-from-file [path-to-definitions-file]
@@ -25,7 +26,7 @@
 
 (defn -main
   [& args]
-  (let [{:keys [definition-name definitions-file number-of-files file-size output-format]} (:options (parse-opts args cli-options))
+  (let [{:keys [definition-name definitions-file number-of-files file-size output-format output-folder]} (:options (parse-opts args cli-options))
         selected-definition (definition-name (load-definitions-from-file definitions-file))
         record-generator (partial generators/generate-record-based-on-definition selected-definition output-format)]
-    (engine/start record-generator number-of-files file-size)))
+    (engine/start record-generator number-of-files file-size output-folder)))
