@@ -33,7 +33,7 @@
                        runner-id
                        file-size
                        folder-path)))
-    (catch Exception e (println "thread worker" runner-id "failed with error:" (.getMessage e)))))
+    (catch Exception e (println "thread worker" runner-id "failed with error:" e))))
 
 (defn start [record-generator number-of-files file-size folder-path]
   (let [cores-number (.availableProcessors (Runtime/getRuntime))
