@@ -6,11 +6,8 @@
             [clojure.string :as str])
   (:gen-class))
 
-;; todo provide defaults for everything you can
-
 (def cli-options
-  [
-   ["-f" "--definitions-file DEFINITIONS" "file with definitions for generator"]
+  [["-f" "--definitions-file DEFINITIONS" "file with definitions for generator"]
    ["-d" "--definition-name DEFINITION" "name of the definition to generate"
     :parse-fn #(keyword %)]
    ["-n" "--number-of-files NUMBER-OF-FILES" "number of output files"
@@ -56,5 +53,6 @@
 
 (defn -main
   [& args]
-  (let [opts (:options (parse-opts args cli-options))]
-    (make-generator-and-run-engine (provide-input-defaults opts))))
+  (let [{:keys [options summary]} (parse-opts args cli-options)]
+    (if (:help options) (println summary)
+        (make-generator-and-run-engine (provide-input-defaults options)))))
