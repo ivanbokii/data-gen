@@ -1,5 +1,5 @@
 {
-  "test-definition": {
+  "main": {
     "number": ["number", 100],
     "string": ["string", 3],
     "string-with-range": ["string-range", 3, 8],

@@ -2,7 +2,8 @@
   (:require [clojure.tools.cli :refer [parse-opts]]
             [cheshire.core :as json]
             [data-gen.generators :as generators]
-            [data-gen.engine :as engine])
+            [data-gen.engine :as engine]
+            [clojure.string :as str])
   (:gen-class))
 
 ;; todo provide defaults for everything you can
@@ -24,18 +25,36 @@
 (defn load-definitions-from-file [path-to-definitions-file]
   (-> path-to-definitions-file slurp (json/parse-string true)))
 
-(defn make-generator-and-run-engine [params]
-  (let [selected-definition ((:definition-name params) (load-definitions-from-file (:definitions-file params)))
+(defn print-configuration [params definition]
+  (println (->> ["Running generator with next parameters:"
+                 (str "- definition file: " (:definitions-file params))
+                 (str "- definition name: " (:definition-name params))
+                 (str "- output folder: " (:output-folder params))
+                 (str "- output format: " (:output-format params))
+                 (str "- number of files: " (:number-of-files params))
+                 (str "- file size (MB): " (:file-size params))
+                 ""
+                 "definition: "]
+                (str/join \newline)))
+  (clojure.pprint/pprint definition))
+
+(defn provide-input-defaults [params]
+  (merge-with #(or %1 %2) params {:definitions-file "./definitions.json"
+                                  :definition-name :main
+                                  :output-folder "./"
+                                  :output-format :json
+                                  :number-of-files 1
+                                  :file-size 1
+                                  :engine data-gen.engine/start}))
+
+(defn make-generator-and-run-engine [raw-params]
+  (let [params (provide-input-defaults raw-params)
+        selected-definition ((:definition-name params) (load-definitions-from-file (:definitions-file params)))
         record-generator (partial generators/generate-record-based-on-definition selected-definition (:output-format params))]
+    (print-configuration params selected-definition)
     ((:engine params) record-generator (:number-of-files params) (:file-size params) (:output-folder params))))
 
 (defn -main
   [& args]
-  (let [{:keys [definition-name definitions-file number-of-files file-size output-format output-folder]} (:options (parse-opts args cli-options))]
-    (make-generator-and-run-engine {:definitions-file definitions-file
-                                    :definition-name definition-name
-                                    :output-folder output-folder
-                                    :output-format output-format
-                                    :number-of-files number-of-files
-                                    :file-size file-size
-                                    :engine data-gen.engine/start})))
+  (let [opts (:options (parse-opts args cli-options))]
+    (make-generator-and-run-engine (provide-input-defaults opts))))
