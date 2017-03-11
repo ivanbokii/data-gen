@@ -18,7 +18,7 @@
     (is (= (.contains generated "*") false))))
 
 (deftest number-generator-test
-  (is (not= (g/number 10) (g/number 10))))
+  (is (not= (g/number 1000) (g/number 1000))))
 
 (deftest random-from-seq-generator-test
   (let [input-seq [1 2 3 4 5]
