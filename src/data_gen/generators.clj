@@ -18,7 +18,7 @@
 (defn string-with-num-placeholder [string-with-placeholder max]
   (str/replace-first string-with-placeholder #"\*" (str (rand-int (+ 1 max)))))
 
-(defn number [max] (rand-int max))
+(defn number [max] (rand-int (+ 1 max)))
 
 (defn random-from-seq [values] (rand-nth values))
 

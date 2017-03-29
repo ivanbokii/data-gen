@@ -64,7 +64,7 @@ Example of a definition file that contains one `main` definition:
 
 Types:
 
-* number - `["number", exclusive-upper-boundary]`
+* number - `["number", inclusive-upper-boundary]`
 * string - `["string", length-of-random-string]`
 * string-range - `["string-range", min-chars-in-string, max-chars-in-string(inclusive)]`
 * placeholder - `["placeholder", string-with-single-start-placholder, max-placeholder(inclusive)]`
