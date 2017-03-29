@@ -12,8 +12,8 @@
     (apply str (map #(nth string-chars %) random-nums))))
 
 (defn string-within-range [min max]
-  (let [length (+ min (rand-int (- max min)))]
-    (string (inc length))))
+  (let [length (+ min (rand-int (+ 1 (- max min))))]
+    (string length)))
 
 (defn string-with-num-placeholder [string-with-placeholder max]
   (str/replace-first string-with-placeholder #"\*" (str (rand-int max))))

@@ -6,6 +6,16 @@
             [clojure.string :as str])
   (:gen-class))
 
+(defn file-exists [path-to-file]
+  (.exists (clojure.java.io/as-file path-to-file)))
+
+(defn supported-format [format]
+  (contains? #{:csv :json} format))
+
+(defn validate-input [params]
+  (when (not (file-exists (:definitions-file params))) "Sorry, can't file definitions file")
+  (when (not (supported-format (:output-format params))) "Sorry, don't support the output format"))
+
 (def cli-options
   [["-f" "--definitions-file DEFINITIONS" "file with definitions for generator"]
    ["-d" "--definition-name DEFINITION" "name of the definition to generate"
@@ -44,12 +54,14 @@
                                   :file-size 1
                                   :engine data-gen.engine/start}))
 
-(defn make-generator-and-run-engine [raw-params]
-  (let [params (provide-input-defaults raw-params)
-        selected-definition ((:definition-name params) (load-definitions-from-file (:definitions-file params)))
-        record-generator (partial generators/generate-record-based-on-definition selected-definition (:output-format params))]
-    (print-configuration params selected-definition)
-    ((:engine params) record-generator (:number-of-files params) (:file-size params) (:output-folder params))))
+(defn make-generator-and-run-engine [params]
+  (if-let [error (validate-input params)]
+    (println error)
+    (let [loaded-definitions (load-definitions-from-file (:definitions-file params))
+          selected-definition ((:definition-name params) loaded-definitions)
+          record-generator (partial generators/generate-record-based-on-definition selected-definition (:output-format params))]
+      (print-configuration params selected-definition)
+      ((:engine params) record-generator (:number-of-files params) (:file-size params) (:output-folder params)))))
 
 (defn -main
   [& args]
